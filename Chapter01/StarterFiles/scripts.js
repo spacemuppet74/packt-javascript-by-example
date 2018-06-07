@@ -1,12 +1,28 @@
 class ToDoClass {
   constructor() {
-    this.tasks = [
-      { task: "Go to Dentist", isComplete: false },
-      { task: "Do Gardening", isComplete: true },
-      { task: "Renew Library Account", isComplete: false }
-    ];
+    this.tasks = JSON.parse(localStorage.getItem("TASKS"));
+
+    if (!this.tasks) {
+      this.tasks = [
+        { task: "Go to Dentist", isComplete: false },
+        { task: "Do Gardening", isComplete: true },
+        { task: "Renew Library Account", isComplete: false }
+      ];
+    }
 
     this.loadTask();
+    this.addEventListeners();
+  }
+
+  addEventListeners() {
+    console.log("add event listeners ");
+    document.getElementById("addTask").addEventListener("keypress", event => {
+      console.log("event listener triggered", event.keyCode);
+      if (event.keyCode === 13) {
+        this.addTask(event.target.value);
+        event.target.value = "";
+      }
+    });
   }
 
   loadTask() {
@@ -15,6 +31,9 @@ class ToDoClass {
       ""
     );
     document.getElementById("taskList").innerHTML = taskHtml;
+
+    //save the data to localstorage
+    localStorage.setItem("TASKS", JSON.stringify(this.tasks));
   }
 
   generateTaskHtml(task, index) {
@@ -36,6 +55,38 @@ class ToDoClass {
      </div>
   </div>
 </li>`;
+  }
+
+  toggleTaskStatus(index) {
+    this.tasks[index].isComplete = !this.tasks[index].isComplete;
+  }
+
+  deleteTask(event, taskIndex) {
+    event.preventDefault();
+    this.tasks.splice(taskIndex, 1);
+    this.loadTask();
+  }
+
+  addTaskClick() {
+    let target = document.getElementById("addTask");
+    this.addTask(target.value);
+    target.value = "";
+  }
+
+  addTask(task) {
+    let newTask = {
+      task,
+      isComplete: false
+    };
+    let parentDiv = document.getElementById("addTask").parentElement;
+
+    if (task === "") {
+      parentDiv.classList.add("has-error");
+    } else {
+      parentDiv.classList.remove("has-error");
+      this.tasks.push(newTask);
+      this.loadTask();
+    }
   }
 }
 
